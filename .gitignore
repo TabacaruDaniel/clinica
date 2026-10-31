@@ -1,0 +1,12 @@
+# secrets - never upload
+.env
+
+# virtual environment - can be recreated from requirements.txt
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# local SQLite database, in case Django creates one
+db.sqlite3
