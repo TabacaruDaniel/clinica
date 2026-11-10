@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Cont nou{% endblock %}
+{% block content %}
+<h1>Creează un cont de pacient</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Creează cont</button>
+</form>
+<p>Ai deja cont? <a href="{% url 'login' %}">Autentifică-te</a>.</p>
+{% endblock %}

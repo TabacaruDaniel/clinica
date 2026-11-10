@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Confirmă legarea{% endblock %}
+{% block content %}
+<p><a href="{% url 'asistent_leaga_alege' fisa.pk %}">&larr; Alege alt cont</a></p>
+<h1>Confirmă legarea</h1>
+
+<div class="card">
+  <h2>Fișa fără cont (rămâne)</h2>
+  <strong>{{ fisa }}</strong>, născut(ă) {{ fisa.data_nasterii|date:"d.m.Y" }}<br>
+  <span class="muted">Telefon: {{ fisa.telefon|default:"–" }} · Email: {{ fisa.email|default:"–" }} · Ședințe: {{ sedinte_fisa }}</span>
+</div>
+
+<div class="card">
+  <h2>Contul {{ utilizator.username }}</h2>
+  {% if alta %}
+    Fișa contului (se comasează în cea de mai sus și dispare):<br>
+    <strong>{{ alta }}</strong>, născut(ă) {{ alta.data_nasterii|date:"d.m.Y" }}<br>
+    <span class="muted">Telefon: {{ alta.telefon|default:"–" }} · Email: {{ alta.email|default:"–" }} · Ședințe: {{ sedinte_alta }}</span>
+  {% else %}
+    <span class="muted">Contul nu are încă o fișă de pacient.</span>
+  {% endif %}
+</div>
+
+{% if diferente %}
+<p class="errorlist"><strong>Atenție:</strong> numele sau data nașterii diferă între cele două fișe. Verifică identitatea pacientului înainte de a confirma.</p>
+{% endif %}
+
+<p>După confirmare, istoricul de ședințe și notificările din ambele fișe vor fi pe aceeași fișă, legată de acest cont. Operația nu poate fi anulată.</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Confirm legarea</button>
+</form>
+{% endblock %}

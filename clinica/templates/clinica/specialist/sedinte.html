@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ titlu }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_specialist' %}">&larr; Panou</a></p>
+<h1>{{ titlu }}</h1>
+
+{% if not viitoare %}
+<form method="get" style="margin-bottom:1rem">
+  <label for="status">Filtrează după status</label>
+  <select name="status" id="status" onchange="this.form.submit()">
+    <option value="">Toate</option>
+    {% for valoare, eticheta in statusuri %}
+    <option value="{{ valoare }}" {% if valoare == status_ales %}selected{% endif %}>{{ eticheta }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filtrează</button></noscript>
+</form>
+{% endif %}
+
+{% if sedinte %}
+<table>
+  <tr><th>Data</th><th>Pacient</th><th>Rol</th><th>Durată</th><th>Preț</th>{% if not viitoare %}<th>Status</th>{% endif %}</tr>
+  {% for s in sedinte %}
+  <tr>
+    <td>{{ s.data_ora|date:"d.m.Y H:i" }}</td>
+    <td>{{ s.pacient }}</td>
+    <td>{{ s.calificare.grad }}</td>
+    <td>{{ s.durata_minute }} min</td>
+    <td>{{ s.pret }} lei</td>
+    {% if not viitoare %}
+    <td>{{ s.get_status_display }}{% if s.motiv_anulare %} <span class="muted">({{ s.motiv_anulare }})</span>{% endif %}</td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">{{ gol }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Anulează ședința{% endblock %}
+{% block content %}
+<p><a href="{% url 'asistent_sedinte' %}">&larr; Ședințe</a></p>
+<h1>Anulează ședința</h1>
+<div class="card">
+  <strong>{{ sedinta.data_ora|date:"d.m.Y H:i" }}</strong><br>
+  Pacient: {{ sedinta.pacient }}<br>
+  Specialist: {{ sedinta.calificare.specialist }}
+</div>
+<p>Ședința rămâne în istoric, marcată ca anulată, cu motivul și data anulării.</p>
+<form method="post">
+  {% csrf_token %}
+  <p>
+    <label for="motiv">Motiv</label>
+    <input id="motiv" name="motiv" maxlength="255" value="Anulată la cererea pacientului.">
+  </p>
+  <button type="submit">Anulează ședința</button>
+</form>
+{% endblock %}

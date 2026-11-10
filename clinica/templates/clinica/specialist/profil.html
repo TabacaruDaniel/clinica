@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Editare profil{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_specialist' %}">&larr; Panou</a></p>
+<h1>Editare profil</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <h2>Program săptămânal</h2>
+  <p class="muted">Apasă „+” pentru a adăuga un interval nou. Orele se aleg din 10 în 10 minute, iar un interval are cel puțin 30 de minute.
+  Un interval inclus în altul este ignorat, iar cele care se suprapun sau se ating se unesc într-unul singur.
+  La cele salvate, bifează „Șterge” pentru a le elimina. Rândurile goale se ignoră.</p>
+  {{ program.management_form }}
+  {{ program.non_form_errors }}
+  <table>
+    <tbody id="program-randuri">
+    {% for f in program %}
+    <tr class="rand-program">
+      <td>{{ f.id }}{{ f.zi.errors }}{{ f.zi }}</td>
+      <td>{{ f.ora_inceput.errors }}{{ f.ora_inceput }}</td>
+      <td>{{ f.ora_sfarsit.errors }}{{ f.ora_sfarsit }}{{ f.non_field_errors }}</td>
+      <td>
+        {% if f.instance.pk %}{{ f.DELETE }} Șterge
+        {% else %}<button type="button" class="secundar sterge-rand">Șterge</button>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p><button type="button" id="adauga-rand" class="secundar" aria-label="Adaugă un interval">+ Adaugă interval</button></p>
+
+  <template id="rand-gol">
+    <tr class="rand-program">
+      <td>{{ program.empty_form.id }}{{ program.empty_form.zi }}</td>
+      <td>{{ program.empty_form.ora_inceput }}</td>
+      <td>{{ program.empty_form.ora_sfarsit }}</td>
+      <td><button type="button" class="secundar sterge-rand">Șterge</button></td>
+    </tr>
+  </template>
+
+  <p><button type="submit">Salvează</button></p>
+</form>
+
+<style>
+  button.secundar { background: #fff; color: #1a5fb4; border: 1px solid #1a5fb4; padding: .3rem .7rem; }
+</style>
+<script>
+  (function () {
+    var randuri = document.getElementById('program-randuri');
+    var total = document.getElementById('id_{{ program.prefix }}-TOTAL_FORMS');
+    var sablon = document.getElementById('rand-gol');
+
+    document.getElementById('adauga-rand').addEventListener('click', function () {
+      var index = parseInt(total.value, 10);
+      var html = sablon.innerHTML.replace(/__prefix__/g, index);
+      randuri.insertAdjacentHTML('beforeend', html);
+      total.value = index + 1;
+    });
+
+    // Un rând nou se elimină din pagină; numerotarea rămasă cu goluri e ignorată de Django.
+    randuri.addEventListener('click', function (e) {
+      if (e.target.classList.contains('sterge-rand')) {
+        e.target.closest('tr').remove();
+      }
+    });
+  })();
+</script>
+{% endblock %}

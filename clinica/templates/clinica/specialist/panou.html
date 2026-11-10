@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Panou specialist{% endblock %}
+{% block content %}
+<h1>Bună, {{ specialist }}</h1>
+
+<p style="display:flex;gap:.5rem;flex-wrap:wrap">
+  <a class="btn" href="{% url 'profil_specialist' %}">Modifică programul</a>
+  <a class="btn" href="{% url 'pacient_nou' %}">Pacient nou (telefon)</a>
+  <a class="btn" href="{% url 'programeaza_sedinta' %}">Programează ședință</a>
+  <a class="btn" href="{% url 'sedinte_viitoare' %}">Ședințe viitoare</a>
+  <a class="btn" href="{% url 'istoric_sedinte' %}">Istoric ședințe</a>
+</p>
+
+
+
+<h2>Profil <a href="{% url 'profil_specialist' %}" style="font-size:.9rem">(editează)</a></h2>
+<p>{{ specialist.descriere|default:"Nu ai adăugat încă o descriere."|linebreaksbr }}</p>
+<p class="muted">{% if specialist.accepta_pacienti_noi %}Accepți pacienți noi.{% else %}Nu accepți pacienți noi.{% endif %}</p>
+
+<h2>Program disponibil</h2>
+{% if program %}
+<table>
+  {% for p in program %}<tr><td>{{ p.get_zi_display }}</td><td>{{ p.ora_inceput|time:"H:i" }} – {{ p.ora_sfarsit|time:"H:i" }}</td></tr>{% endfor %}
+</table>
+{% else %}
+<p class="muted">Programul nu este stabilit.</p>
+{% endif %}
+
+<h2>Calificările mele</h2>
+<table>
+  <tr><th>Grad</th><th>Domeniu</th><th>Nr. document</th><th>Expiră</th><th>Verificată</th><th>Stare</th></tr>
+  {% for c in calificari %}
+  <tr>
+    <td>{{ c.grad }}</td>
+    <td>{{ c.domeniu|default:"–" }}</td>
+    <td>{{ c.nr_document }}</td>
+    <td>{{ c.data_expirare|date:"d.m.Y"|default:"–" }}</td>
+    <td>{{ c.verificata|yesno:"Da,Nu" }}</td>
+    <td>{{ c.stare }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="muted">Calificările se adaugă și se verifică de administrator.</p>
+{% endblock %}

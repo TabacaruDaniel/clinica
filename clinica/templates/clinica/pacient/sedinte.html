@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Ședințele mele{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_pacient' %}">&larr; Contul meu</a></p>
+<h1>Ședințele mele</h1>
+
+<h2>Ședințe trecute</h2>
+{% if istoric %}
+<table>
+  <tr><th>Data</th><th>Terapeut</th><th>Rol</th><th>Durată</th><th>Preț</th><th>Status</th></tr>
+  {% for s in istoric %}
+  <tr>
+    <td>{{ s.data_ora|date:"d.m.Y H:i" }}</td>
+    <td>{{ s.calificare.specialist }}</td>
+    <td>{{ s.calificare.grad }}</td>
+    <td>{{ s.durata_minute }} min</td>
+    <td>{{ s.pret }} lei</td>
+    <td>{{ s.get_status_display }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">Nu ai ședințe în istoric.</p>
+{% endif %}
+
+<h2>Ședințe viitoare</h2>
+{% if viitoare %}
+<table>
+  <tr><th>Data</th><th>Terapeut</th><th>Rol</th><th>Durată</th><th>Preț</th><th>Link</th></tr>
+  {% for s in viitoare %}
+  <tr>
+    <td>{{ s.data_ora|date:"d.m.Y H:i" }}</td>
+    <td>{{ s.calificare.specialist }}</td>
+    <td>{{ s.calificare.grad }}</td>
+    <td>{{ s.durata_minute }} min</td>
+    <td>{{ s.pret }} lei</td>
+    <td>{% if s.link_intalnire %}<a href="{{ s.link_intalnire }}">Intră în ședință</a>{% else %}<span class="muted">–</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">Nu ai ședințe programate.</p>
+{% endif %}
+{% endblock %}

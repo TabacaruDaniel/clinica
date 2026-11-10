@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Contul meu{% endblock %}
+{% block content %}
+<h1>Bună, {{ pacient.prenume }}</h1>
+<p style="display:flex;gap:.5rem;flex-wrap:wrap">
+  <a class="btn" href="{% url 'terapeuti' %}">Găsește un terapeut</a>
+  <a class="btn" href="{% url 'sedintele_mele' %}">Ședințele mele</a>
+</p>
+<p class="muted">Pentru programări sau anulări, contactează clinica telefonic.</p>
+{% endblock %}

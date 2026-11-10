@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Ședințe{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_asistent' %}">&larr; Panou</a></p>
+<h1>Ședințe</h1>
+<form method="get" style="margin-bottom:1rem">
+  <input type="search" name="q" value="{{ q }}" placeholder="Pacient sau specialist" aria-label="Caută">
+  <select name="status" aria-label="Status">
+    <option value="">Toate</option>
+    {% for valoare, eticheta in statusuri %}
+    <option value="{{ valoare }}" {% if valoare == status_ales %}selected{% endif %}>{{ eticheta }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Caută</button>
+</form>
+<table>
+  <tr><th>Data</th><th>Pacient</th><th>Specialist</th><th>Rol</th><th>Preț</th><th>Status</th><th></th></tr>
+  {% for s in pagina %}
+  <tr>
+    <td>{{ s.data_ora|date:"d.m.Y H:i" }}</td>
+    <td>{{ s.pacient }}</td>
+    <td>{{ s.calificare.specialist }}</td>
+    <td>{{ s.calificare.grad }}</td>
+    <td>{{ s.pret }} lei</td>
+    <td>{{ s.get_status_display }}{% if s.motiv_anulare %} <span class="muted">({{ s.motiv_anulare }})</span>{% endif %}</td>
+    <td>{% if s.status == 'programata' and s.data_ora > now %}<a href="{% url 'asistent_anuleaza' s.pk %}">Anulează</a>{% endif %}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="7" class="muted">Niciun rezultat.</td></tr>
+  {% endfor %}
+</table>
+{% include "clinica/asistent/_paginare.html" %}
+{% endblock %}

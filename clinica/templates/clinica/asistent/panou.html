@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Panou asistent{% endblock %}
+{% block content %}
+<h1>Bună, {{ asistent }}</h1>
+
+<p style="display:flex;gap:.5rem;flex-wrap:wrap">
+  <a class="btn" href="{% url 'asistent_pacienti' %}">Pacienți</a>
+  <a class="btn" href="{% url 'asistent_utilizatori' %}">Utilizatori</a>
+  <a class="btn" href="{% url 'asistent_sedinte' %}">Ședințe</a>
+</p>
+
+<table>
+  <tr><td>Pacienți</td><td><strong>{{ nr_pacienti }}</strong></td></tr>
+  <tr><td>Pacienți fără cont</td><td><strong>{{ nr_fara_cont }}</strong></td></tr>
+  <tr><td>Conturi de utilizator</td><td><strong>{{ nr_utilizatori }}</strong></td></tr>
+  <tr><td>Ședințe viitoare</td><td><strong>{{ nr_viitoare }}</strong></td></tr>
+</table>
+{% endblock %}

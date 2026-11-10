@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Pacienți{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_asistent' %}">&larr; Panou</a></p>
+<h1>Pacienți</h1>
+<p><a class="btn" href="{% url 'asistent_pacient_nou' %}">Pacient nou (telefon)</a></p>
+<form method="get" style="margin-bottom:1rem">
+  <input type="search" name="q" value="{{ q }}" placeholder="Nume, email sau telefon" aria-label="Caută">
+  <select name="cont" aria-label="Cont">
+    <option value="">Toți</option>
+    <option value="da" {% if cont == 'da' %}selected{% endif %}>Cu cont</option>
+    <option value="nu" {% if cont == 'nu' %}selected{% endif %}>Fără cont</option>
+  </select>
+  <button type="submit">Caută</button>
+</form>
+<table>
+  <tr><th>Nume</th><th>Data nașterii</th><th>Telefon</th><th>Email</th><th>Cont</th><th></th></tr>
+  {% for p in pagina %}
+  <tr>
+    <td>{{ p }}</td>
+    <td>{{ p.data_nasterii|date:"d.m.Y" }}</td>
+    <td>{{ p.telefon|default:"–" }}</td>
+    <td>{{ p.email|default:"–" }}</td>
+    <td>{% if p.utilizator %}{{ p.utilizator.username }}{% else %}<span class="muted">fără cont</span>{% endif %}</td>
+    <td>
+      <a href="{% url 'asistent_programeaza' p.pk %}">Programează</a>
+      {% if not p.utilizator %} · <a href="{% url 'asistent_leaga_alege' p.pk %}">Leagă de un cont</a>{% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="muted">Niciun rezultat.</td></tr>
+  {% endfor %}
+</table>
+{% include "clinica/asistent/_paginare.html" %}
+{% endblock %}

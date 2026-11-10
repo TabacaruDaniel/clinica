@@ -1,0 +1,7 @@
+{% if pagina.has_other_pages %}
+<p class="muted">
+  {% if pagina.has_previous %}<a href="?{% if param %}{{ param }}&amp;{% endif %}pagina={{ pagina.previous_page_number }}">&larr; Anterioară</a>{% endif %}
+  Pagina {{ pagina.number }} din {{ pagina.paginator.num_pages }}
+  {% if pagina.has_next %}<a href="?{% if param %}{{ param }}&amp;{% endif %}pagina={{ pagina.next_page_number }}">Următoarea &rarr;</a>{% endif %}
+</p>
+{% endif %}

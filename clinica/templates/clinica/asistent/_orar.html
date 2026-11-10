@@ -1,0 +1,21 @@
+<h3>Orarul lui {{ specialist }}</h3>
+{% if program %}
+<table>
+  {% for p in program %}
+  <tr><td>{{ p.get_zi_display }}</td><td>{{ p.ora_inceput|time:"H:i" }} – {{ p.ora_sfarsit|time:"H:i" }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">Specialistul nu are program stabilit, deci nu se pot programa ședințe.</p>
+{% endif %}
+
+<h3>Deja ocupat (următoarele 30 de zile)</h3>
+{% if ocupate %}
+<table>
+  {% for inceput, sfarsit in ocupate %}
+  <tr><td>{{ inceput|date:"D d.m.Y" }}</td><td>{{ inceput|time:"H:i" }} – {{ sfarsit|time:"H:i" }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">Nicio ședință programată.</p>
+{% endif %}

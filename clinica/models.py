@@ -94,6 +94,22 @@ class Pacient(Persoana):
             raise ValidationError({'data_nasterii': 'Data nașterii nu poate fi în viitor.'})
 
 
+class Asistent(Persoana):
+    """
+    Personal administrativ: poate consulta pacienții, conturile și ședințele pentru a ajuta
+    pacienții (ex: legarea unei fișe de un cont). Nu vede notele confidențiale ale ședințelor.
+    """
+
+    utilizator = models.OneToOneField(
+        Utilizator, on_delete=models.SET_NULL, null=True, blank=True, related_name='asistent',
+    )
+    email = models.EmailField(unique=True)
+
+    class Meta(Persoana.Meta):
+        verbose_name = 'asistent'
+        verbose_name_plural = 'asistenți'
+
+
 class Specialist(Persoana):
     """Fișa profesională. Profesiile și gradele sunt în Calificare (1:N)."""
 
@@ -107,6 +123,59 @@ class Specialist(Persoana):
     class Meta(Persoana.Meta):
         verbose_name = 'specialist'
         verbose_name_plural = 'specialiști'
+
+
+class ProgramSpecialist(models.Model):
+    """Interval orar săptămânal în care specialistul primește pacienți."""
+
+    class Zi(models.IntegerChoices):
+        LUNI = 0, 'Luni'
+        MARTI = 1, 'Marți'
+        MIERCURI = 2, 'Miercuri'
+        JOI = 3, 'Joi'
+        VINERI = 4, 'Vineri'
+        SAMBATA = 5, 'Sâmbătă'
+        DUMINICA = 6, 'Duminică'
+
+    specialist = models.ForeignKey(Specialist, on_delete=models.CASCADE, related_name='program')
+    zi = models.PositiveSmallIntegerField(choices=Zi.choices)
+    ora_inceput = models.TimeField()
+    ora_sfarsit = models.TimeField()
+
+    PAS_MINUTE = 10          # orele se aleg din 10 în 10 minute
+    DURATA_MINIMA_MINUTE = 30
+
+    class Meta:
+        verbose_name = 'interval de program'
+        verbose_name_plural = 'program specialist'
+        ordering = ['zi', 'ora_inceput']
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(ora_sfarsit__gt=F('ora_inceput')), name='program_sfarsit_dupa_inceput',
+                violation_error_message='Ora de sfârșit trebuie să fie după ora de început.',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_zi_display()} {self.ora_inceput:%H:%M}–{self.ora_sfarsit:%H:%M}'
+
+    def clean(self):
+        if self.ora_inceput is None or self.ora_sfarsit is None:
+            return
+        erori = {}
+        for camp in ('ora_inceput', 'ora_sfarsit'):
+            ora = getattr(self, camp)
+            if ora.minute % self.PAS_MINUTE or ora.second or ora.microsecond:
+                erori[camp] = [f'Ora trebuie să fie din {self.PAS_MINUTE} în {self.PAS_MINUTE} minute (ex: 14:10).']
+        if not erori and self.ora_sfarsit > self.ora_inceput:
+            minute = (self.ora_sfarsit.hour * 60 + self.ora_sfarsit.minute) - (
+                self.ora_inceput.hour * 60 + self.ora_inceput.minute)
+            if minute < self.DURATA_MINIMA_MINUTE:
+                erori['ora_sfarsit'] = [
+                    f'Intervalul trebuie să aibă cel puțin {self.DURATA_MINIMA_MINUTE} de minute.'
+                ]
+        if erori:
+            raise ValidationError(erori)
 
 
 # ---------------------------------------------------------------------------
@@ -262,6 +331,13 @@ class Calificare(models.Model):
     def __str__(self):
         text = f'{self.specialist} – {self.grad}'
         return f'{text} ({self.domeniu})' if self.domeniu else text
+
+    @classmethod
+    def valabile(cls):
+        """Calificările utilizabile azi: active, verificate, neexpirate."""
+        return cls.objects.filter(activa=True, verificata=True).filter(
+            Q(data_expirare__isnull=True) | Q(data_expirare__gte=timezone.localdate())
+        )
 
     def stare(self):
         if self.activa:

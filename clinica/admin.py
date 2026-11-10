@@ -1,12 +1,16 @@
 from collections import Counter
 
 from django.contrib import admin, messages
+from django.db import models
 from django.contrib.auth.admin import UserAdmin
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+from .servicii import comaseaza_program
+from .widgets import DataOraWidget, SelectOraWidget
 from .models import (
-    Calificare, GradProfesional, Notificare, Pacient, Profesie, Sedinta, Specialist, Utilizator,
+    Asistent, Calificare, GradProfesional, Notificare, Pacient, Profesie, ProgramSpecialist, Sedinta,
+    Specialist, Utilizator,
 )
 
 # Utilizator folosește administrarea standard Django (hash parolă, permisiuni etc.)
@@ -41,14 +45,32 @@ class CalificareInline(admin.TabularInline):
         return False
 
 
+class ProgramInline(admin.TabularInline):
+    model = ProgramSpecialist
+    extra = 1
+    formfield_overrides = {models.TimeField: {'widget': SelectOraWidget}}
+
+
+@admin.register(Asistent)
+class AsistentAdmin(admin.ModelAdmin):
+    list_display = ['nume', 'prenume', 'email', 'utilizator']
+    search_fields = ['nume', 'prenume', 'email']
+    readonly_fields = ['data_inregistrare']
+    autocomplete_fields = ['utilizator']
+
+
 @admin.register(Specialist)
 class SpecialistAdmin(admin.ModelAdmin):
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        comaseaza_program(form.instance)  # intervalele suprapuse se unesc
+
     list_display = ['nume', 'prenume', 'email', 'accepta_pacienti_noi']
     search_fields = ['nume', 'prenume', 'email']
     list_filter = ['accepta_pacienti_noi', 'calificari__grad__profesie']
     readonly_fields = ['data_inregistrare']
     autocomplete_fields = ['utilizator']
-    inlines = [CalificareInline]
+    inlines = [ProgramInline, CalificareInline]
 
 
 # ---------------------------------------------------------------- profesii
@@ -168,6 +190,7 @@ class SedintaAdmin(admin.ModelAdmin):
     list_filter = ['status', 'calificare__grad__profesie']
     search_fields = ['pacient__nume', 'pacient__prenume', 'calificare__specialist__nume']
     date_hierarchy = 'data_ora'
+    formfield_overrides = {models.DateTimeField: {'widget': DataOraWidget}}
     autocomplete_fields = ['pacient', 'calificare']
     readonly_fields = ['anulata_la', 'creata_la']
 

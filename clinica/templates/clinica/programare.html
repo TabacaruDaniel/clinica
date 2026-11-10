@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ titlu }}{% endblock %}
+{% block content %}
+<p><a href="{{ inapoi_url }}">&larr; Înapoi</a></p>
+<h1>{{ titlu }}</h1>
+<form method="post">
+  {% csrf_token %}
+  {% if pacient_form %}
+  <h2>Pacient</h2>
+  {{ pacient_form.as_p }}
+  {% endif %}
+  {% if sedinta_form %}
+  <h2>Ședința</h2>
+  {{ sedinta_form.non_field_errors }}
+  {% for field in sedinta_form %}
+    <p>
+      {{ field.label_tag }}
+      {{ field.errors }}
+      {{ field }}
+      {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+    </p>
+    {% if orar_url and field.name == 'calificare' %}
+    <div id="orar" class="card" aria-live="polite" hidden></div>
+    {% endif %}
+  {% endfor %}
+  {% endif %}
+  <p><button type="submit">Salvează</button></p>
+</form>
+
+{% if orar_url %}
+<script>
+  (function () {
+    var select = document.getElementById('id_calificare');
+    var caseta = document.getElementById('orar');
+    var sablon = "{{ orar_url }}";   // se termină în /0/
+
+    function incarca() {
+      if (!select.value) { caseta.hidden = true; return; }
+      fetch(sablon.replace(/\/0\/$/, '/' + select.value + '/'), {credentials: 'same-origin'})
+        .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+        .then(function (html) { caseta.innerHTML = html; caseta.hidden = false; })
+        .catch(function () { caseta.textContent = 'Orarul nu a putut fi încărcat.'; caseta.hidden = false; });
+    }
+
+    select.addEventListener('change', incarca);
+    incarca();  // specialistul ales implicit (sau păstrat după o eroare de validare)
+  })();
+</script>
+{% endif %}
+{% endblock %}

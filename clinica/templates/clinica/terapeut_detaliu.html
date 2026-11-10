@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ specialist }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'terapeuti' %}">&larr; Toți terapeuții</a></p>
+<h1>{{ specialist }}</h1>
+{% if not specialist.accepta_pacienti_noi %}<p class="muted"><em>Momentan nu acceptă pacienți noi.</em></p>{% endif %}
+
+<h2>Despre</h2>
+<p>{{ specialist.descriere|default:"Nu există o descriere." |linebreaksbr }}</p>
+
+<h2>Certificări</h2>
+<table>
+  <tr><th>Profesie / grad</th><th>Domeniu</th><th>Nr. document</th><th>Obținut</th><th>Expiră</th><th>Tarif / ședință</th></tr>
+  {% for c in calificari %}
+  <tr>
+    <td>{{ c.grad }}</td>
+    <td>{{ c.domeniu|default:"–" }}</td>
+    <td>{{ c.nr_document }} <span class="muted">({{ c.grad.profesie.organism_emitent }})</span></td>
+    <td>{{ c.data_obtinere|date:"d.m.Y" }}</td>
+    <td>{{ c.data_expirare|date:"d.m.Y"|default:"–" }}</td>
+    <td>{{ c.tarif_sedinta }} lei</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Program disponibil</h2>
+{% if program %}
+<table>
+  {% for p in program %}
+  <tr><td>{{ p.get_zi_display }}</td><td>{{ p.ora_inceput|time:"H:i" }} – {{ p.ora_sfarsit|time:"H:i" }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">Programul nu a fost încă stabilit.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Terapeuți{% endblock %}
+{% block content %}
+<p><a href="{% url 'panou_pacient' %}">&larr; Contul meu</a></p>
+<h1>Găsește un terapeut</h1>
+<p class="muted">Ai fost deja programat telefonic și ai acum un cont? Contactează clinica, iar asistenta îți va lega fișa de cont.</p>
+{% for s in specialisti %}
+  <div class="card">
+    <h2><a href="{% url 'terapeut_detaliu' s.pk %}">{{ s }}</a></h2>
+    <div class="muted">
+      {% for c in s.calificari_valabile %}{{ c.grad }}{% if c.domeniu %} ({{ c.domeniu }}){% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}
+    </div>
+    {% if not s.accepta_pacienti_noi %}<div class="muted"><em>Momentan nu acceptă pacienți noi.</em></div>{% endif %}
+  </div>
+{% empty %}
+  <p>Nu există terapeuți disponibili momentan.</p>
+{% endfor %}
+{% endblock %}

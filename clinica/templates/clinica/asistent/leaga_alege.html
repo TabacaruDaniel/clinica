@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Leagă fișa de un cont{% endblock %}
+{% block content %}
+<p><a href="{% url 'asistent_pacienti' %}">&larr; Pacienți</a></p>
+<h1>Leagă fișa de un cont</h1>
+<div class="card">
+  <strong>{{ fisa }}</strong>, născut(ă) {{ fisa.data_nasterii|date:"d.m.Y" }}<br>
+  <span class="muted">Telefon: {{ fisa.telefon|default:"–" }} · Email: {{ fisa.email|default:"–" }}</span>
+</div>
+
+<h2>Alege contul</h2>
+<form method="get" style="margin-bottom:1rem">
+  <input type="search" name="q" value="{{ q }}" placeholder="Username, nume sau email" aria-label="Caută cont">
+  <button type="submit">Caută</button>
+</form>
+<table>
+  <tr><th>Username</th><th>Nume</th><th>Email</th><th></th></tr>
+  {% for u in conturi %}
+  <tr>
+    <td>{{ u.username }}</td>
+    <td>{{ u.get_full_name|default:"–" }}</td>
+    <td>{{ u.email|default:"–" }}</td>
+    <td><a href="{% url 'asistent_leaga_confirma' fisa.pk u.pk %}">Alege</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4" class="muted">Niciun cont de pacient găsit.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
